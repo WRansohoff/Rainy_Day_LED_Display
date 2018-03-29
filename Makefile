@@ -88,10 +88,9 @@ LFLAGS += -mthumb
 LFLAGS += -Wall
 LFLAGS += --specs=nosys.specs
 LFLAGS += -nostdlib
-LFLAGS += ./lib/libgcc.a
-LFLAGS += ./lib/libc.a
+LFLAGS += -lgcc
 #LFLAGS += -nostartfiles
-LFLAGS += -static
+#LFLAGS += -static
 LFLAGS += -T$(LSCRIPT)
 
 AS_SRC += ./src/core.S
