@@ -61,13 +61,11 @@ int main(void) {
 
   // Enable the GPIOA clock (use pin A0 for now.)
   RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
-  // Enable the TIM2 clock.
-  RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
   // Enable the SYSCFG clock for hardware interrupts.
   // TODO: is this only needed for EXTI interrupts?
   //RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;
-  // Enable the TIM2 clock.
-  RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
+  // Enable the TIM3 clock.
+  RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;
 
   // Setup GPIO pin A0 as push-pull output, no pupdr,
   // 10MHz max speed.
@@ -76,10 +74,10 @@ int main(void) {
   LL_GPIO_SetPinSpeed(GPIOA, LL_GPIO_PIN_0, LL_GPIO_SPEED_FREQ_MEDIUM);
   LL_GPIO_SetPinPull(GPIOA, LL_GPIO_PIN_0, LL_GPIO_PULL_NO);
 
-  // Setup the TIM2 timer for PRNG.
+  // Setup the TIM3 timer for PRNG.
   #ifdef VVC_F0
     // Ensure the timer is off.
-    LL_TIM_DeInit(TIM2);
+    LL_TIM_DeInit(TIM3);
     // Use a prescaler of 1, for a fast clock.
     // @48MHz PLL, this comes out to about .02 us I think.
     timer_init_struct.Prescaler = 0x0000;
@@ -92,9 +90,9 @@ int main(void) {
     // Set the repetition counter to 0; unused.
     timer_init_struct.RepetitionCounter = 0x00;
     // Initialize the peripheral.
-    LL_TIM_Init(TIM2, &timer_init_struct);
+    LL_TIM_Init(TIM3, &timer_init_struct);
     // Then finally, enable the timer.
-    LL_TIM_EnableCounter(TIM2);
+    LL_TIM_EnableCounter(TIM3);
   #elif  VVC_F3
     // TODO
   #endif
@@ -103,7 +101,7 @@ int main(void) {
   while (1) {
     // Get the current timer counter value.
     // This can act as a PRNG counter.
-    tim_counter = LL_TIM_GetCounter(TIM2);
+    tim_counter = LL_TIM_GetCounter(TIM3);
 
     //delay_us(250);
     fill_grid_with_droplets();
@@ -116,7 +114,7 @@ int main(void) {
       else {
         // This droplet is 'empty'. Maybe make a new one?
         // Say a 5% chance per cycle. 65535/20 ~= 3276.
-        if (LL_TIM_GetCounter(TIM2) < 3276) {
+        if (LL_TIM_GetCounter(TIM3) < 3276) {
           create_new_droplet(&raindrops[rain_iter]);
         }
       }
